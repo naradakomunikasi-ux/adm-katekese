@@ -1,0 +1,20 @@
+{
+  "name": "adm-katekese-backend",
+  "private": true,
+  "version": "1.0.0-rc77",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "start:prod": "NODE_ENV=production node src/index.js",
+    "test": "node --test test/*.test.js",
+    "check": "node --check src/index.js && node --check src/security.js && node --check src/rbac-store.js && node --check src/rag.js && node --check src/observability.js && node --check src/domain.js && node --check src/db-contract.js && node --check src/api-catalog.js && node --check src/validation.js && node --check src/session.js && node --check src/ai-provider.js && node --check src/logger.js && node --check src/alerts.js && node --check src/workflow.js && node --check src/access-scope.js && node --check src/participant-scope.js && node --check src/transaction.js && node --check src/idempotency.js && node --check src/openapi-contract.js && node --check src/abuse-defense.js && node --check src/slo.js && node --check src/token-policy.js && node --check src/request-policy.js && node --check src/rate-limit.js && node --check src/audit-integrity.js && node --check src/knowledge-policy.js && node --check src/embedding-provider.js && node --check src/knowledge-ingestion.js && node --check src/rag-evaluation.js && node --check src/hybrid-retrieval.js && node --check src/rag-confidence.js && node --check src/answer-grounding.js && node --check src/version.js && node --check src/audit-export.js && node --check src/runtime-config.js && node --check src/library-policy.js && node --check src/ai-fabric-config.js && node --check src/ai-settings-store.js && node --check src/ai-routing-store.js && node --check src/program-core.js && node --check src/scheduling-core.js && node --check src/service-modules.js && node --check runtime-config-check.mjs && node --check src/library-access.js && node --check src/enrollment-policy.js && node --check scripts/bootstrap-super-admin.mjs && node --check src/program-builder.js && node --check src/participant-service-profile.js",
+    "lint": "node lint-source.mjs",
+    "config:check": "node runtime-config-check.mjs",
+    "bootstrap:super-admin": "node scripts/bootstrap-super-admin.mjs"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "pg": "^8.13.1",
+    "redis": "^4.7.0"
+  }
+}

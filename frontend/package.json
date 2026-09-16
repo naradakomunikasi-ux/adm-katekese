@@ -1,0 +1,20 @@
+{
+  "name": "adm-katekese-frontend",
+  "private": true,
+  "version": "1.0.0-rc77",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node scripts/write-release-metadata.mjs && vite build",
+    "preview": "vite preview",
+    "test:rc75": "node test-rc75-delivery-lifecycle-contract.mjs",
+    "test:rc77": "node test-rc77-ai-model-fabric-contract.mjs",
+    "lint": "node lint-source.mjs"
+  },
+  "dependencies": {
+    "vite": "^6.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {}
+}
