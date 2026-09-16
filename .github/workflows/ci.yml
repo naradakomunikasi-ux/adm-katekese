@@ -1,0 +1,181 @@
+name: ci
+
+permissions:
+  contents: read
+
+concurrency:
+  group: adm-katekese-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: ["main", "master", "agent/**"]
+  pull_request:
+
+jobs:
+  source-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Frontend source checks
+        run: |
+          cd frontend
+          npm run check
+          npm run lint
+          npm test
+      - name: Backend source checks
+        run: |
+          cd backend
+          npm run check
+          npm run lint
+          npm test
+      - name: Migration and release contract checks
+        run: |
+          node scripts/verify-migrations.mjs
+          node scripts/verify-release.mjs
+          node scripts/verify-db-contract.mjs
+          node scripts/verify-backup-contract.mjs
+          node scripts/security-static-scan.mjs
+          node scripts/verify-compose-security.mjs
+          node scripts/uat-simulation.mjs
+          node scripts/verify-disaster-recovery.mjs
+          node scripts/verify-openapi-contract.mjs
+          node scripts/verify-openapi-drift.mjs
+          node scripts/verify-release-integrity.mjs
+          node scripts/verify-migration-safety.mjs
+          node scripts/verify-version-consistency.mjs
+          node scripts/verify-runtime-config-contract.mjs
+          node scripts/verify-rbac-catalog-parity.mjs
+          node scripts/verify-participant-enrollment-source.mjs
+          node scripts/verify-report-aggregation-safety.mjs
+          node scripts/verify-release-provenance.mjs
+
+  dependency-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify lockfile readiness
+        run: node scripts/verify-lockfile-readiness.mjs
+      - name: Install and build frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm ci
+          npm run check
+          npm test
+
+  docker-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp .env.example .env
+      - run: docker compose config
+
+
+  integration-db:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: adm_katekese
+          POSTGRES_USER: adm_katekese
+          POSTGRES_PASSWORD: ci_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U adm_katekese -d adm_katekese"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://adm_katekese:ci_password@localhost:5432/adm_katekese
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Apply migrations
+        run: ./scripts/migrate.sh
+      - name: Install backend dependencies
+        run: cd backend && npm ci
+      - name: Verify DB integration
+        run: ./scripts/integration-db.sh
+      - name: Rollback all migrations
+        run: ./scripts/rollback.sh
+      - name: Reapply migrations
+        run: ./scripts/migrate.sh
+      - name: Verify DB integration after reapply
+        run: ./scripts/integration-db.sh
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: dependency-build
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp .env.example .env
+      - name: Build all application images
+        run: docker compose build
+
+  runtime-compose-smoke:
+    runs-on: ubuntu-latest
+    needs: [dependency-build, integration-db, docker-build]
+    env:
+      POSTGRES_DB: adm_katekese
+      POSTGRES_USER: adm_katekese
+      POSTGRES_PASSWORD: ci_password
+      DATABASE_URL: postgresql://adm_katekese:ci_password@postgres:5432/adm_katekese
+      REDIS_URL: redis://redis:6379
+      FRONTEND_ORIGIN: http://localhost
+      AUTH_SECRET: 0123456789abcdef0123456789abcdef0123456789abcdef
+      APP_VERSION: 1.0.0-rc76
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve release version
+        run: echo "APP_VERSION=$(cat VERSION)" >> "$GITHUB_ENV"
+      - name: Start production-like compose stack
+        run: docker compose up -d --build
+      - name: Wait for API health and readiness
+        run: |
+          for i in $(seq 1 30); do curl -fsS http://localhost/api/health && break || sleep 2; done
+          curl -fsS http://localhost/api/health
+          READY=$(curl -fsS http://localhost/api/ready)
+          echo "$READY"
+          echo "$READY" | grep -F "\"version\":\"$APP_VERSION\""
+          echo "$READY" | grep -F '"schemaGeneration":51'
+          RELEASE=$(curl -fsS http://localhost/release.json)
+          echo "$RELEASE"
+          echo "$RELEASE" | grep -F "\"version\": \"$APP_VERSION\""
+          echo "$RELEASE" | grep -F '"schemaGeneration": 51'
+      - name: Restart backend and verify recovery
+        run: |
+          docker compose restart backend
+          sleep 5
+          curl -fsS http://localhost/api/health
+      - name: Run desktop and mobile browser UAT
+        run: BASE_URL=http://localhost OUT_DIR=evidence/browser-uat-ci ./scripts/browser-uat-live.sh
+      - name: Upload browser UAT evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-uat-${{ github.run_id }}
+          path: evidence/browser-uat-ci
+          if-no-files-found: warn
+      - name: Capture diagnostics
+        if: always()
+        run: docker compose ps && docker compose logs --no-color --tail=200
+      - name: Shutdown
+        if: always()
+        run: docker compose down
