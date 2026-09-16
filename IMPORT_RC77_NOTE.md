@@ -1,0 +1,1 @@
+RC77 full source import is in progress from the verified 2026-09-16 Drive checkpoint. This marker exists to preserve import continuity while the repository is populated and verified against the checkpoint manifest.
