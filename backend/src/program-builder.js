@@ -6,10 +6,10 @@ export const DEFAULT_PROGRAM_TYPES=[
  ['MRT','Persiapan Perkawinan / MRT','Sakramen'],
  ['BINA_IMAN_ANAK','Bina Iman Anak','Pembinaan'],
  ['BINA_IMAN_REMAJA','Bina Iman Remaja','Pembinaan'],
- ['OMK','OMK','Pembinaan'],
+ ['OMK','OMK','Komunitas'],
  ['REKOLEKSI_RETRET','Rekoleksi / Retret','Pembinaan'],
- ['SEMINAR','Seminar','Katekese Tematik'],
- ['WEBINAR','Webinar / Katekese Tematik','Katekese Tematik'],
+ ['SEMINAR','Seminar','Acara'],
+ ['WEBINAR','Webinar / Katekese Tematik','Acara'],
  ['CUSTOM','Custom Program','Pelayanan']
 ];
 
@@ -17,7 +17,14 @@ const TEMPLATE={
  KATEKUMEN:['Pendaftaran','Persiapan','Katekumenat','Tahap Liturgis','Sakramen','Mistagogi','Selesai'],
  BAPTIS_BAYI:['Pendaftaran','Data Anak & Orang Tua','Dokumen','Pembekalan Orang Tua','Verifikasi','Persetujuan Pastoral','Jadwal Baptis','Sakramen','Sertifikat','Selesai'],
  KOMUNI_PERTAMA:['Pendaftaran','Verifikasi Baptis','Pembinaan','Pertemuan','Kehadiran','Evaluasi','Persiapan Liturgi','Persetujuan','Komuni Pertama','Sertifikat','Selesai'],
- KRISMA:['Pendaftaran','Dokumen','Pembinaan','Kehadiran','Evaluasi','Pendamping / Sponsor','Persetujuan Pastoral','Sakramen Krisma','Sertifikat','Selesai']
+ KRISMA:['Pendaftaran','Dokumen','Pembinaan','Kehadiran','Evaluasi','Pendamping / Sponsor','Persetujuan Pastoral','Sakramen Krisma','Sertifikat','Selesai'],
+ MRT:['Pendaftaran Pasangan','Data Calon Mempelai 1','Data Calon Mempelai 2','Dokumen','Pertemuan MRT','Kehadiran Pasangan','Konseling / Wawancara','Verifikasi','Persetujuan Pastoral','Sertifikat MRT','Selesai'],
+ BINA_IMAN_ANAK:['Pendaftaran','Verifikasi','Pembinaan','Pertemuan','Kehadiran','Evaluasi','Selesai'],
+ BINA_IMAN_REMAJA:['Pendaftaran','Verifikasi','Pembinaan','Pertemuan','Kehadiran','Evaluasi','Selesai'],
+ OMK:['Pendaftaran Anggota','Verifikasi Anggota','Anggota Aktif','Kegiatan','Pelayanan / Volunteer','Evaluasi Keanggotaan','Arsip'],
+ REKOLEKSI_RETRET:['Pendaftaran','Konfirmasi','Persiapan','Pelaksanaan','Kehadiran','Evaluasi','Selesai'],
+ SEMINAR:['Pendaftaran','Pembayaran Opsional','Konfirmasi','Kehadiran','Pelaksanaan','Selesai'],
+ WEBINAR:['Pendaftaran','Konfirmasi','Akses Acara','Kehadiran','Pelaksanaan','Selesai']
 };
 
 export function stageKey(label,index=0){
@@ -26,7 +33,13 @@ export function stageKey(label,index=0){
 }
 export function defaultJourneyStages(programTypeCode){
  const labels=TEMPLATE[String(programTypeCode||'').toUpperCase()]||['Pendaftaran','Persiapan','Pelaksanaan','Evaluasi','Selesai'];
- return labels.map((label,index)=>({key:stageKey(label,index),label,sortOrder:index+1,required:true,approvalRequired:/persetujuan pastoral/i.test(label)}));
+ return labels.map((label,index)=>({
+  key:stageKey(label,index),
+  label,
+  sortOrder:index+1,
+  required:true,
+  approvalRequired:/(persetujuan pastoral|approval pastoral|persetujuan pastor)/i.test(label)
+ }));
 }
 export function normalizeJourneyStages(input,programTypeCode){
  const src=Array.isArray(input)&&input.length?input:defaultJourneyStages(programTypeCode);
