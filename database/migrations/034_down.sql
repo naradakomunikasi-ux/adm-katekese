@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS idx_certificates_participant_status_created;

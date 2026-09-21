@@ -1,0 +1,2 @@
+DROP INDEX IF EXISTS idx_pastoral_notes_participant_visibility_created;
+DROP INDEX IF EXISTS idx_journey_events_participant_occurred;

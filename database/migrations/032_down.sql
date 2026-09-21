@@ -1,0 +1,3 @@
+DROP INDEX IF EXISTS idx_participant_programs_program_status_enrolled;
+DROP TRIGGER IF EXISTS trg_participant_program_enrollment ON participant_programs;
+DROP FUNCTION IF EXISTS enforce_participant_program_enrollment();
