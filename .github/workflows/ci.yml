@@ -13,6 +13,27 @@ on:
   pull_request:
 
 jobs:
+  lockfile-bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: Generate backend lockfile candidate when missing
+        run: |
+          if [ ! -f backend/package-lock.json ]; then
+            cd backend
+            npm install --package-lock-only --ignore-scripts
+          fi
+      - name: Upload backend lockfile candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-package-lock-${{ github.run_id }}
+          path: backend/package-lock.json
+          if-no-files-found: error
+
   source-completeness:
     runs-on: ubuntu-latest
     steps:
