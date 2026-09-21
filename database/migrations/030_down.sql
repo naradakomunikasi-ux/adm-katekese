@@ -1,0 +1,3 @@
+DROP INDEX IF EXISTS idx_announcements_due_schedule;
+ALTER TABLE announcements DROP CONSTRAINT IF EXISTS announcements_expiry_after_publish_check;
+ALTER TABLE announcements DROP CONSTRAINT IF EXISTS announcements_schedule_publish_at_check;
