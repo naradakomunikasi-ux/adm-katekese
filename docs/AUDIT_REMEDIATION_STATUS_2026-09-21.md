@@ -34,6 +34,16 @@ Baseline checkpoint: `v1.0.0-rc77-WIP`
 - Latest GitHub Actions run #24: FAILURE. Jobs failing: source-tests, dependency-build, docker-config, integration-db. docker-build and runtime-compose-smoke were skipped.
 - This failure is treated as expected evidence of an incomplete repository tree, not as a production regression verdict. Missing scripts/dependencies/configuration must be imported before CI can be evaluated as a final RC77 gate.
 
+## Full checkpoint verification executed locally
+- Drive checkpoint ZIP re-fetched directly and SHA-256 revalidated: `2464560d9848fa6c05dafb112160cd3a56088739dcb7e1e712922ed4193bab5a`.
+- ZIP extracted successfully to exactly 730 files.
+- Backend `npm run check`: PASS.
+- Backend `npm test`: PASS, 287/287.
+- Frontend `npm run check`: PASS.
+- Frontend `npm test`: PASS.
+- 18/18 static release/governance scripts from the CI source-test lane: PASS.
+- These results verify the qualified full Drive checkpoint itself; they do not make the partial GitHub staging tree complete.
+
 ## Still open
 - Full 730-file source reconciliation against the qualified Drive checkpoint.
 - Remaining backend/frontend/database/scripts/deployment/docs import.
