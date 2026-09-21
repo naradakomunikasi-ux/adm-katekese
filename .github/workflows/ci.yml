@@ -22,17 +22,35 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
       - name: Generate backend lockfile candidate when missing
+        id: backend-lock
+        shell: bash
         run: |
-          if [ ! -f backend/package-lock.json ]; then
-            cd backend
-            npm install --package-lock-only --ignore-scripts
+          mkdir -p evidence/lockfile-bootstrap
+          if [ -f backend/package-lock.json ]; then
+            cp backend/package-lock.json evidence/lockfile-bootstrap/backend-package-lock.json
+            echo "exit_code=0" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
-      - name: Upload backend lockfile candidate
+          set +e
+          (cd backend && npm install --package-lock-only --ignore-scripts) > evidence/lockfile-bootstrap/npm-install.log 2>&1
+          code=$?
+          set -e
+          echo "$code" > evidence/lockfile-bootstrap/exit-code.txt
+          npm config get registry > evidence/lockfile-bootstrap/npm-registry.txt 2>&1 || true
+          if [ -f backend/package-lock.json ]; then
+            cp backend/package-lock.json evidence/lockfile-bootstrap/backend-package-lock.json
+          fi
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+      - name: Upload backend lockfile diagnostics
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: backend-package-lock-${{ github.run_id }}
-          path: backend/package-lock.json
+          path: evidence/lockfile-bootstrap
           if-no-files-found: error
+      - name: Enforce backend lockfile generation
+        if: steps.backend-lock.outputs.exit_code != '0'
+        run: exit ${{ steps.backend-lock.outputs.exit_code }}
 
   source-completeness:
     runs-on: ubuntu-latest
