@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const app=fs.readFileSync(new URL('./src/App.jsx',import.meta.url),'utf8');
+const api=fs.readFileSync(new URL('./src/api.js',import.meta.url),'utf8');
+assert.match(app,/Akses<select value=\{accessRole\}/);
+assert.match(app,/option value="PUBLIC">Publik/);
+assert.match(app,/option value="PESERTA">Peserta/);
+assert.match(app,/option value="KATEKIS">Katekis/);
+assert.match(app,/option value="PASTOR">Pastor/);
+assert.match(api,/X-File-Access-Role/);
+console.log('RC49 library access frontend contract: 6/6 PASS');

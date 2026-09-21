@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const source=fs.readFileSync(new URL('./src/App.jsx',import.meta.url),'utf8');
+assert.match(source,/hasPending/);
+assert.match(source,/sudah diajukan/);
+assert.match(source,/page==='approvals'\?`\$\{x\.participant_name/);
+assert.match(source,/disabled=\{p\.hasPending\}/);
+assert.match(source,/APPROVAL/);
+assert.match(source,/Ajukan Persetujuan Pastoral/);
+console.log('RC54 approval privacy frontend contract: 6/6 PASS');

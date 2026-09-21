@@ -1,0 +1,11 @@
+import fs from 'node:fs';import assert from 'node:assert/strict';
+const app=fs.readFileSync('src/App.jsx','utf8');
+assert.doesNotMatch(app,/globalThis\.(prompt|confirm)/);
+assert.match(app,/Penugasan Katekis/);
+assert.match(app,/\/assignments/);
+assert.match(app,/participant:read_assigned/);
+assert.match(app,/Terbitkan Sertifikat/);
+assert.match(app,/Cabut Sertifikat/);
+assert.match(app,/Jadwalkan Pengumuman/);
+assert.match(app,/Catatan Pelayanan/);
+console.log('RC41 scope/dialog frontend contract: 8/8 PASS');

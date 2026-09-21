@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+const app=readFileSync(new URL('./src/App.jsx',import.meta.url),'utf8');
+const nav=readFileSync(new URL('./src/navigation.js',import.meta.url),'utf8');
+const styles=readFileSync(new URL('./src/styles.css',import.meta.url),'utf8');
+for(const label of ['Pertemuan Hari Ini','Perjalanan Pelayanan','Aksi Cepat','Periode Aktif','Pengumuman Aktif']) assert.ok(app.includes(label),label);
+assert.ok(nav.includes('Pesan & Reminder'));
+assert.ok(nav.includes('Perpustakaan Digital'));
+assert.ok(styles.includes('.dashboardGrid'));
+console.log('RC69 dashboard alignment contract PASS');
