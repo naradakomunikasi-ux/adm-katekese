@@ -127,3 +127,23 @@ Dependency/runtime probes:
 - psql, redis-server, docker: absent.
 
 Latest observed GitHub Actions run #71 still has zero-step source-completeness/lockfile-bootstrap jobs and skipped downstream jobs. This remains an Actions runner/execution blocker, not verified source failure.
+
+
+## Increment update — staging 379 files
+
+Current import:
+- backend 98/133;
+- frontend 77/80;
+- database 117/117;
+- scripts 43/43 checkpoint (+1 staging control);
+- deployment 6/6;
+- evidence 19/54 plus staging evidence;
+- docs 8/289.
+
+Frontend reconciliation gap is reduced to three exact checkpoint files:
+- frontend/package-lock.json
+- frontend/src/App.jsx
+- frontend/src/styles.css
+
+Latest GitHub Actions run #76 again completed without a runner for source-completeness or lockfile-bootstrap (runner_id=0, steps=0); all downstream jobs were skipped.
+Qualified checkpoint source tests remain PASS. Runtime remains NOT VERIFIED.
