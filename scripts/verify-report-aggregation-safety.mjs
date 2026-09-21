@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const api=fs.readFileSync('backend/src/index.js','utf8');
+const migration=fs.readFileSync('database/migrations/037_up.sql','utf8');
+const programReport=api.match(/app\.get\('\/api\/reports\/programs'[\s\S]*?\}\);\napp\.get\('\/api\/reports\/attention'/)?.[0]||'';
+const attention=api.match(/app\.get\('\/api\/reports\/attention'[\s\S]*?\}\);\napp\.get\('\/api\/reports\/payments/ )?.[0]||'';
+const pastoralView=migration.match(/CREATE OR REPLACE VIEW report_program_pastoral_summary AS[\s\S]*?;\n\nCREATE INDEX/)?.[0]||'';
+assert.match(programReport,/report_program_pastoral_summary/i,'program report must use privacy-safe pastoral summary view');
+assert.match(pastoralView,/LEFT JOIN LATERAL \([\s\S]*count\(DISTINCT pp\.participant_id\)/i,'pastoral view must aggregate enrollment independently');
+assert.match(pastoralView,/LEFT JOIN LATERAL \([\s\S]*count\(\*\)::int AS meetings/i,'meeting aggregate must be independent');
+assert.match(pastoralView,/LEFT JOIN LATERAL \([\s\S]*count\(\*\) FILTER/i,'certificate aggregate must be independent');
+assert.doesNotMatch(pastoralView,/\bpayments\b/i,'pastoral summary view must not contain financial data');
+assert.match(programReport,/SELECT program_id,COALESCE\(sum\(amount\) FILTER\(WHERE status='PAID'\)/i,'financial aggregate must be separate and permission-gated');
+assert.match(attention,/pay\.program_id=enrollment\.program_id/i,'attention payments must be scoped to current enrollment program');
+assert.match(attention,/a\.program_id=enrollment\.program_id/i,'attention approvals must be scoped to current enrollment program');
+console.log(JSON.stringify({status:'PASS',checks:8,scope:'privacy-safe report aggregation and enrollment scoping'},null,2));

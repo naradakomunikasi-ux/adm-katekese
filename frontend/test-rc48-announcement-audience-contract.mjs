@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const src=fs.readFileSync(new URL('./src/App.jsx',import.meta.url),'utf8');
+assert.match(src,/\+ Pengumuman/);
+assert.match(src,/Semua \/ Publik/);
+assert.match(src,/value="PESERTA"/);
+assert.match(src,/value="KATEKIS"/);
+assert.match(src,/value="PASTOR"/);
+assert.match(src,/value="ADMIN"/);
+console.log('RC48 announcement audience contract: 6/6 PASS');

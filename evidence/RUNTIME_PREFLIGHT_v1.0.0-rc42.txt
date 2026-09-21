@@ -1,0 +1,23 @@
+timestamp=2026-08-14T13:25:55+00:00
+node=v22.16.0
+npm=10.9.2
+registry=https://registry.npmjs.org/
+npm_ping=124
+dns_registry=2
+docker=absent
+psql=absent
+gh=absent
+frontend_lock=absent
+backend_lock=absent
+--- frontend build ---
+
+> adm-katekese-frontend@1.0.0-rc42 build
+> vite build
+
+frontend_build_exit=127
+--- backend start probe ---
+
+> adm-katekese-backend@1.0.0-rc42 start
+> node src/index.js
+
+backend_start_exit=1

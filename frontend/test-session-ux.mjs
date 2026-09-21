@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import { isExpired, millisecondsUntilExpiry, sessionExpiryLevel } from './src/auth.js';
+const now=Date.parse('2026-08-11T13:00:00Z');
+const active={expiresAt:'2026-08-11T14:00:00Z'};
+const warning={expiresAt:'2026-08-11T13:04:00Z'};
+const expired={expiresAt:'2026-08-11T12:59:00Z'};
+assert.equal(isExpired(active,now),false);
+assert.equal(millisecondsUntilExpiry(active,now),3600000);
+assert.equal(sessionExpiryLevel(active,now),'active');
+assert.equal(sessionExpiryLevel(warning,now),'warning');
+assert.equal(sessionExpiryLevel(expired,now),'expired');
+const app=fs.readFileSync(new URL('./src/App.jsx',import.meta.url),'utf8');
+assert.match(app,/minLength="8"/);
+assert.match(app,/Sesi akan berakhir dalam kurang dari 5 menit/);
+assert.match(app,/setTimeout\(\(\)=>\{clearSession\(\);setSession\(null\);\},remaining\+50\)/);
+console.log('Session UX contract: 8/8 PASS');

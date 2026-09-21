@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import { parseRetryAfterMs } from './src/api.js';
+let pass=0;
+const check=(name,actual,expected)=>{assert.equal(actual,expected);pass++;};
+check('seconds',parseRetryAfterMs('2',0),2000);
+check('zero',parseRetryAfterMs('0',0),0);
+check('invalid',parseRetryAfterMs('wat',0),null);
+check('date future',parseRetryAfterMs('Thu, 01 Jan 1970 00:00:05 GMT',1000),4000);
+check('date past',parseRetryAfterMs('Thu, 01 Jan 1970 00:00:01 GMT',5000),0);
+check('cap',parseRetryAfterMs('60',0),30000);
+console.log(`Retry-After parsing: ${pass}/6 PASS`);

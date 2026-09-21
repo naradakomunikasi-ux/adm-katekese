@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {ApiError,isRetryableReadError,retryDelayMs,createApiClient} from './src/api.js';
+assert.equal(isRetryableReadError(new ApiError('x',{status:503,code:'HTTP_ERROR'})),true);
+assert.equal(isRetryableReadError(new ApiError('x',{status:400,code:'HTTP_ERROR'})),false);
+assert.equal(retryDelayMs(0),150); assert.equal(retryDelayMs(3),1200);
+let calls=0; globalThis.fetch=async()=>{calls++; if(calls<3)return {ok:false,status:503,json:async()=>({error:{code:'TEMP',message:'busy'}}),headers:{get:()=>null}}; return {ok:true,status:200,json:async()=>({ok:true,data:{ready:true}}),headers:{get:()=>null}};};
+const client=createApiClient({readRetries:2,sleepFn:async()=>{}}); assert.deepEqual(await client.get('/ready'),{ready:true}); assert.equal(calls,3);
+calls=0; globalThis.fetch=async()=>{calls++; return {ok:false,status:503,json:async()=>({error:{code:'TEMP',message:'busy'}}),headers:{get:()=>null}};};
+await assert.rejects(()=>client.post('/tasks',{})); assert.equal(calls,1,'mutation must never auto-retry');
+let unauthorized=0; calls=0;
+globalThis.fetch=async()=>{calls++;return {ok:false,status:401,json:async()=>({error:{code:'UNAUTHORIZED',message:'expired'}}),headers:{get:()=>null}};};
+const authClient=createApiClient({readRetries:2,sleepFn:async()=>{},onUnauthorized:()=>{unauthorized++;}});
+await assert.rejects(()=>authClient.get('/me'),e=>e instanceof ApiError&&e.status===401); assert.equal(calls,1,'401 must not retry'); assert.equal(unauthorized,1,'401 must trigger auth cleanup exactly once');
+console.log(JSON.stringify({suite:'api-retry-policy',checks:10,status:'PASS'}));

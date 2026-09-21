@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const app=fs.readFileSync(new URL('./src/App.jsx',import.meta.url),'utf8');
+const nav=fs.readFileSync(new URL('./src/navigation.js',import.meta.url),'utf8');
+assert.match(nav,/KATEKIS: .*'certificates'/);
+assert.match(nav,/PESERTA: .*'certificates'/);
+assert.match(app,/Status sertifikat hanya untuk peserta dalam penugasan Anda/);
+assert.match(app,/Sertifikat yang sudah diterbitkan untuk akun Anda dapat diunduh/);
+assert.match(app,/certificates\/\$\{x\.id\}\/download/);
+assert.ok(app.includes("(role==='PESERTA'||canPastor)"));
+console.log('RC55 certificate scope frontend contract: 6/6 PASS');
