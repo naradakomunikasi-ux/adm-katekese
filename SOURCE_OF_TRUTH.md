@@ -30,8 +30,8 @@ Qualified Drive checkpoint:
 - evidence: 54
 
 Current GitHub staging tree:
-- 368 files total
-- backend: 87/133
+- 379 files total
+- backend: 98/133
 - frontend: 77/80
 - database: 117/117
 - docs: 8/289
@@ -39,7 +39,7 @@ Current GitHub staging tree:
 - deployment: 6/6
 - evidence: 19/54 plus staging evidence
 
-Direct file-count synchronization is therefore incomplete. Database, checkpoint scripts, and deployment are fully represented. Frontend remains near-complete at 77/80. Backend advanced to 87/133. The exact qualified Drive ZIP was re-executed locally: backend check PASS, backend tests 287/287 PASS, frontend check PASS, and frontend tests PASS. Database, checkpoint scripts, and deployment categories are fully represented. Frontend is near-complete at 77/80; backend is 71/133. Docs and evidence remain intentionally incomplete while source import is prioritized. Database, checkpoint scripts, and deployment categories are now fully represented; backend, frontend, docs, and evidence remain incomplete. Scripts and deployment categories are now fully represented from the checkpoint; database import has advanced to 53/117 files.
+Direct file-count synchronization is therefore incomplete. Database, checkpoint scripts, and deployment are fully represented. Backend advanced to 98/133 after exact checkpoint service-module and test imports. Frontend remains 77/80; its remaining exact checkpoint artifacts are package-lock.json, src/App.jsx, and src/styles.css. Database, checkpoint scripts, and deployment are fully represented. Frontend remains near-complete at 77/80. Backend advanced to 87/133. The exact qualified Drive ZIP was re-executed locally: backend check PASS, backend tests 287/287 PASS, frontend check PASS, and frontend tests PASS. Database, checkpoint scripts, and deployment categories are fully represented. Frontend is near-complete at 77/80; backend is 71/133. Docs and evidence remain intentionally incomplete while source import is prioritized. Database, checkpoint scripts, and deployment categories are now fully represented; backend, frontend, docs, and evidence remain incomplete. Scripts and deployment categories are now fully represented from the checkpoint; database import has advanced to 53/117 files.
 The Drive checkpoint remains the qualified full-source reference until the GitHub tree is reconciled path-by-path and passes CI.
 
 ## Promotion rule
