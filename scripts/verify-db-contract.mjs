@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { REQUIRED_TABLES, migrationSequence } from '../backend/src/db-contract.js';
+const base = path.resolve('database/migrations');
+const files = fs.readdirSync(base).filter((f)=>f.endsWith('.sql')).sort();
+const seq = migrationSequence(files);
+if (!seq.paired) throw new Error('migration up/down sequence is not paired');
+const sql = files.filter((f)=>f.endsWith('_up.sql')).map((f)=>fs.readFileSync(path.join(base,f),'utf8')).join('\n');
+const missing = REQUIRED_TABLES.filter((t)=>!new RegExp(`CREATE\\s+TABLE\\s+IF\\s+NOT\\s+EXISTS\\s+${t}\\b`,'i').test(sql));
+if (missing.length) throw new Error(`required DB tables missing from migrations: ${missing.join(', ')}`);
+console.log(JSON.stringify({migrations:seq.up.length, requiredTables:REQUIRED_TABLES.length, missing:[], status:'PASS'}, null, 2));
