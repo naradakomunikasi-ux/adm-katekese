@@ -29,8 +29,8 @@ Baseline checkpoint: `v1.0.0-rc77-WIP`
 
 ## Current quantified repository state
 - Qualified checkpoint: 730 files.
-- Current staging Git tree: 48 files total (14 backend, 10 frontend, 4 database, 8 docs, 0 scripts, 2 deployment, 1 GitHub workflow, plus root files).
-- Therefore the full-source reconciliation is still materially incomplete; direct file-count coverage is at most 48/730 (~6.6%) before path-by-path reconciliation.
+- Current staging Git tree after this increment: 49 files total (14 backend, 10 frontend, 4 database, 8 docs, 1 scripts, 2 deployment, 1 GitHub workflow, plus root files).
+- Therefore the full-source reconciliation is still materially incomplete; direct file-count coverage is at most 49/730 (~6.7%) before path-by-path reconciliation.
 - Latest GitHub Actions run #24: FAILURE. Jobs failing: source-tests, dependency-build, docker-config, integration-db. docker-build and runtime-compose-smoke were skipped.
 - This failure is treated as expected evidence of an incomplete repository tree, not as a production regression verdict. Missing scripts/dependencies/configuration must be imported before CI can be evaluated as a final RC77 gate.
 
@@ -43,6 +43,11 @@ Baseline checkpoint: `v1.0.0-rc77-WIP`
 - Frontend `npm test`: PASS.
 - 18/18 static release/governance scripts from the CI source-test lane: PASS.
 - These results verify the qualified full Drive checkpoint itself; they do not make the partial GitHub staging tree complete.
+
+## CI control improvement
+- Added `scripts/verify-source-completeness.mjs` as an explicit RC77 import gate.
+- Downstream CI lanes (`source-tests`, `dependency-build`, `docker-config`, `integration-db`) now depend on source completeness first.
+- This prevents misleading multi-lane failures while the repository is intentionally partial and makes the blocker explicit.
 
 ## Still open
 - Full 730-file source reconciliation against the qualified Drive checkpoint.
