@@ -30,16 +30,16 @@ Qualified Drive checkpoint:
 - evidence: 54
 
 Current GitHub staging tree:
-- 78 files total
+- 145 files total
 - backend: 14
 - frontend: 10
-- database: 4
+- database: 53
 - docs: 8
-- scripts: 30
-- deployment: 2
+- scripts: 44 (43 checkpoint scripts + 1 staging completeness control)
+- deployment: 6
 - evidence: 0
 
-Direct file-count synchronization is therefore incomplete.
+Direct file-count synchronization is therefore incomplete. Scripts and deployment categories are now fully represented from the checkpoint; database import has advanced to 53/117 files.
 The Drive checkpoint remains the qualified full-source reference until the GitHub tree is reconciled path-by-path and passes CI.
 
 ## Promotion rule
