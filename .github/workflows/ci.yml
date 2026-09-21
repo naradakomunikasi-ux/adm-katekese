@@ -13,7 +13,18 @@ on:
   pull_request:
 
 jobs:
+  source-completeness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify RC77 full-source import completeness
+        run: node scripts/verify-source-completeness.mjs
+
   source-tests:
+    needs: source-completeness
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -54,6 +65,7 @@ jobs:
           node scripts/verify-release-provenance.mjs
 
   dependency-build:
+    needs: source-completeness
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -75,6 +87,7 @@ jobs:
           npm test
 
   docker-config:
+    needs: source-completeness
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -83,6 +96,7 @@ jobs:
 
 
   integration-db:
+    needs: source-completeness
     runs-on: ubuntu-latest
     services:
       postgres:
