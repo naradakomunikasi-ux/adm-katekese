@@ -106,3 +106,40 @@ The pipeline now fails at the correct first gate instead of producing misleading
 - SOURCE_OF_TRUTH.md updated with quantified Drive↔GitHub synchronization state.
 - Audit remediation status updated with multilane progress.
 - PR #1 remains DRAFT and Production remains NO-GO.
+
+
+## Multilane progress checkpoint — 2026-09-21 late update
+
+### Lane 1 — Source import
+- GitHub staging tree increased from 119 to 145 files.
+- Database increased from 27/117 to 53/117.
+- Added checkpoint migrations 001-004, 011-012, and 014-020.
+- Checkpoint scripts remain fully imported: 43/43, plus one staging-only source-completeness control.
+- Deployment remains fully imported: 6/6.
+- Backend remains 14/133, frontend 10/80, docs 8/289, evidence 0/54.
+- Migration 013 and 021-051 remain to import, plus remaining backend/frontend/docs/evidence.
+
+### Lane 2 — Reconciliation
+- Current staging total: 145 files.
+- Qualified Drive checkpoint: 730 files.
+- Direct file-count ratio: about 19.9%, for orientation only; this is not project completion and is not exact path reconciliation because staging includes extra governance/remediation files.
+- Path reconciliation remains INCOMPLETE.
+
+### Lane 3 — CI
+- Latest run: #43.
+- Result: FAILURE at infrastructure/control entry point.
+- source-completeness: failure with runner_id=0, runner_name empty, steps=0.
+- lockfile-bootstrap: failure with runner_id=0, runner_name empty, steps=0.
+- dependency-build/source-tests/docker-config/integration-db/docker-build/runtime-compose-smoke: skipped.
+- Conclusion: GitHub Actions runner/execution infrastructure is not currently executing the job steps. No code-quality failure is inferred from this run.
+
+### Lane 4 — Runtime
+- Runtime remains BLOCKED / NOT VERIFIED.
+- Qualified checkpoint static evidence remains PASS.
+- PostgreSQL, Redis, backend start, frontend production build, Docker compose, and browser UAT still require an executable runtime environment.
+
+### Lane 5 — Documentation
+- Source-of-truth synchronization counts updated.
+- Multilane audit status updated.
+- PR #1 remains DRAFT.
+- Production remains NO-GO.
