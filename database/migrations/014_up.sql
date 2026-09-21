@@ -1,0 +1,11 @@
+BEGIN;
+ALTER TABLE documents DROP CONSTRAINT IF EXISTS documents_verification_status_check;
+ALTER TABLE documents ADD CONSTRAINT documents_verification_status_check CHECK(verification_status IN('PENDING','UNDER_REVIEW','VALID','REVISION_REQUIRED','REJECTED'));
+ALTER TABLE payments ADD CONSTRAINT payments_status_check CHECK(status IN('UNPAID','PARTIAL','PAID','WAIVED'));
+ALTER TABLE approvals DROP CONSTRAINT IF EXISTS approvals_status_check;
+ALTER TABLE approvals ADD CONSTRAINT approvals_status_check CHECK(status IN('DRAFT','SUBMITTED','APPROVED','REVISION_REQUIRED','REJECTED'));
+ALTER TABLE announcements ADD CONSTRAINT announcements_status_check CHECK(status IN('DRAFT','REVIEW','SCHEDULED','PUBLISHED','ARCHIVED'));
+CREATE INDEX IF NOT EXISTS idx_documents_participant_status ON documents(participant_id,verification_status);
+CREATE INDEX IF NOT EXISTS idx_approvals_participant_status ON approvals(participant_id,status);
+CREATE INDEX IF NOT EXISTS idx_payments_due_status ON payments(due_date,status) WHERE status IN('UNPAID','PARTIAL');
+COMMIT;

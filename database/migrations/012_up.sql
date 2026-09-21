@@ -1,0 +1,13 @@
+ALTER TABLE library_files DROP CONSTRAINT IF EXISTS library_files_size_bytes_check;
+ALTER TABLE library_files ADD CONSTRAINT library_files_size_bytes_check CHECK(size_bytes > 0 AND size_bytes <= 62914560);
+ALTER TABLE library_files DROP CONSTRAINT IF EXISTS library_files_status_check;
+ALTER TABLE library_files ADD CONSTRAINT library_files_status_check CHECK(status IN ('DRAFT','PUBLISHED','ARCHIVED'));
+ALTER TABLE library_files ALTER COLUMN status SET DEFAULT 'DRAFT';
+ALTER TABLE library_files ADD COLUMN IF NOT EXISTS author TEXT;
+ALTER TABLE library_files ADD COLUMN IF NOT EXISTS category TEXT;
+ALTER TABLE library_files ADD COLUMN IF NOT EXISTS access_role TEXT NOT NULL DEFAULT 'PESERTA' CHECK(access_role IN ('PUBLIC','PESERTA','KATEKIS','ADMIN','PASTOR'));
+ALTER TABLE library_files ADD COLUMN IF NOT EXISTS published_at TIMESTAMPTZ;
+UPDATE library_files SET status='PUBLISHED',published_at=COALESCE(published_at,created_at) WHERE status='ACTIVE';
+DROP INDEX IF EXISTS uq_library_files_sha256;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_library_files_sha256_active ON library_files(sha256) WHERE status IN ('DRAFT','PUBLISHED');
+CREATE INDEX IF NOT EXISTS idx_library_files_catalog ON library_files(status,category,created_at DESC);

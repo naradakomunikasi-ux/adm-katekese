@@ -1,0 +1,13 @@
+UPDATE library_files SET status='ACTIVE' WHERE status IN ('DRAFT','PUBLISHED');
+ALTER TABLE library_files DROP CONSTRAINT IF EXISTS library_files_status_check;
+ALTER TABLE library_files ADD CONSTRAINT library_files_status_check CHECK(status IN ('ACTIVE','ARCHIVED'));
+ALTER TABLE library_files ALTER COLUMN status SET DEFAULT 'ACTIVE';
+ALTER TABLE library_files DROP COLUMN IF EXISTS published_at;
+ALTER TABLE library_files DROP COLUMN IF EXISTS access_role;
+ALTER TABLE library_files DROP COLUMN IF EXISTS category;
+ALTER TABLE library_files DROP COLUMN IF EXISTS author;
+ALTER TABLE library_files DROP CONSTRAINT IF EXISTS library_files_size_bytes_check;
+ALTER TABLE library_files ADD CONSTRAINT library_files_size_bytes_check CHECK(size_bytes > 0 AND size_bytes <= 15728640);
+DROP INDEX IF EXISTS uq_library_files_sha256_active;
+DROP INDEX IF EXISTS idx_library_files_catalog;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_library_files_sha256 ON library_files(sha256) WHERE status='ACTIVE';
