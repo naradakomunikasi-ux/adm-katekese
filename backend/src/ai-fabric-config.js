@@ -50,10 +50,16 @@ export function safeAiFabricConfig(env=process.env){
 }
 
 export function selectAiRoute({confidence='none',config=aiFabricConfig()}={}){
-  const primaryReady=config.primary.baseUrl&&config.primary.apiKey&&config.primary.model;
-  const cloudReady=config.cloud.enabled&&config.cloud.baseUrl&&config.cloud.apiKey&&config.cloud.model;
-  if(primaryReady) return {route:'primary',provider:config.primary};
-  if(cloudReady && config.routing.cloudEscalation==='always') return {route:'cloud',provider:config.cloud};
-  if(cloudReady && ['medium','high'].includes(confidence) && config.routing.cloudEscalation==='complex_only') return {route:'cloud',provider:config.cloud};
-  return {route:'fallback',provider:null};
+  const primaryReady=Boolean(config.primary.baseUrl&&config.primary.apiKey&&config.primary.model);
+  const cloudReady=Boolean(config.cloud.enabled&&config.cloud.baseUrl&&config.cloud.apiKey&&config.cloud.model);
+  const escalation=String(config.routing.cloudEscalation||'complex_only').toLowerCase();
+  const normalizedConfidence=String(confidence||'none').toLowerCase();
+
+  if(cloudReady && escalation==='always') return {route:'cloud',provider:config.cloud,reason:'CLOUD_ALWAYS'};
+  if(cloudReady && escalation==='complex_only' && ['medium','high'].includes(normalizedConfidence)) {
+    return {route:'cloud',provider:config.cloud,reason:'COMPLEX_ESCALATION'};
+  }
+  if(primaryReady) return {route:'primary',provider:config.primary,reason:'PRIMARY_READY'};
+  if(cloudReady) return {route:'cloud',provider:config.cloud,reason:'PRIMARY_UNAVAILABLE'};
+  return {route:'fallback',provider:null,reason:'NO_PROVIDER_READY'};
 }
