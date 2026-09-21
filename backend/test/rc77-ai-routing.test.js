@@ -58,3 +58,35 @@ test('routing options exclude provider privacy mismatch and recommend compatible
  assert.equal(recommendation.humanAuthorityRequired,true);
  assert.equal(recommendation.status,'DRAFT');
 });
+
+
+import {aiFabricConfig,selectAiRoute} from '../src/ai-fabric-config.js';
+
+test('Cloud escalation policy can override healthy primary for complex requests',()=>{
+ const config=aiFabricConfig({
+  LLM_API_BASE_URL:'https://local.example',
+  LLM_API_KEY:'local-key',
+  LLM_MODEL:'local-model',
+  CLOUD_LLM_ENABLED:'true',
+  CLOUD_LLM_API_BASE_URL:'https://cloud.example',
+  CLOUD_LLM_API_KEY:'cloud-key',
+  CLOUD_LLM_MODEL:'cloud-model',
+  CLOUD_LLM_ESCALATION:'complex_only'
+ });
+ assert.equal(selectAiRoute({confidence:'high',config}).route,'cloud');
+ assert.equal(selectAiRoute({confidence:'none',config}).route,'primary');
+});
+
+test('Cloud always policy is honored before primary route',()=>{
+ const config=aiFabricConfig({
+  LLM_API_BASE_URL:'https://local.example',
+  LLM_API_KEY:'local-key',
+  LLM_MODEL:'local-model',
+  CLOUD_LLM_ENABLED:'true',
+  CLOUD_LLM_API_BASE_URL:'https://cloud.example',
+  CLOUD_LLM_API_KEY:'cloud-key',
+  CLOUD_LLM_MODEL:'cloud-model',
+  CLOUD_LLM_ESCALATION:'always'
+ });
+ assert.equal(selectAiRoute({confidence:'none',config}).route,'cloud');
+});
