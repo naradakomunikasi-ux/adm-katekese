@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {canMutate,canReadParticipant} from '../role-policy.mjs';
+test('auditor read only',()=>assert.equal(canMutate({role:'Auditor',permission:'registration.verify',scope:true}),false));
+test('participant no pastoral approval',()=>assert.equal(canMutate({role:'Peserta',permission:'approval.finalize',scope:true}),false));
+test('secretariat scoped verification',()=>assert.equal(canMutate({role:'Sekretariat',permission:'registration.verify',scope:true}),true));
+test('secretariat unscoped denied',()=>assert.equal(canMutate({role:'Sekretariat',permission:'registration.verify',scope:false}),false));
+test('pastor scoped approval',()=>assert.equal(canMutate({role:'Romo / Approver',permission:'approval.finalize',scope:true}),true));
+test('admin cannot finalize pastoral approval',()=>assert.equal(canMutate({role:'Admin Katekese',permission:'approval.finalize',scope:true}),false));
+test('guardian linked child',()=>assert.equal(canReadParticipant({role:'Orang Tua/Wali',own:false,verifiedGuardian:true,revoked:false}),true));
+test('revoked guardian denied',()=>assert.equal(canReadParticipant({role:'Orang Tua/Wali',own:false,verifiedGuardian:true,revoked:true}),false));
