@@ -1,0 +1,25 @@
+name: Candidate Node Policy CI
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'server.js'
+      - 'role-policy.mjs'
+      - 'access-contract.mjs'
+      - 'test/**'
+      - '.github/workflows/candidate-node-ci.yml'
+  push:
+    branches:
+      - 'replacement/**'
+jobs:
+  policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        run: npm run check
+      - name: Unit tests
+        run: npm test
