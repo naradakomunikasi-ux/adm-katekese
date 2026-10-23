@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {evaluateAccess, guardianCanRead} from '../access-contract.mjs';
+const base={actorId:12,role:'Katekis',action:'attendance.validate',assignment:{user_id:12,role_name:'Katekis',program_id:4,revoked_at:null},targetProgramId:4,now:new Date('2026-10-23T10:00:00Z')};
+test('scoped catechist can validate',()=>assert.equal(evaluateAccess(base).allow,true));
+test('auditor mutation denied',()=>assert.equal(evaluateAccess({...base,role:'Auditor',assignment:{...base.assignment,role_name:'Auditor'}}).reason,'FORBIDDEN_ROLE'));
+test('cross-program mutation denied',()=>assert.equal(evaluateAccess({...base,targetProgramId:5}).reason,'OUTSIDE_PROGRAM_SCOPE'));
+test('revoked assignment denied',()=>assert.equal(evaluateAccess({...base,assignment:{...base.assignment,revoked_at:'2026-10-01'}}).allow,false));
+test('forged role denied',()=>assert.equal(evaluateAccess({...base,role:'Romo / Approver',action:'approval.finalize'}).allow,false));
+test('unauthenticated denied',()=>assert.equal(evaluateAccess({...base,actorId:0}).allow,false));
+test('expired assignment denied',()=>assert.equal(evaluateAccess({...base,assignment:{...base.assignment,ends_at:'2026-10-22'}}).allow,false));
+test('future assignment denied',()=>assert.equal(evaluateAccess({...base,assignment:{...base.assignment,starts_at:'2026-10-24'}}).allow,false));
+test('owner can read',()=>assert.equal(guardianCanRead({actorId:12,participantOwnerId:12}),true));
+test('verified guardian can read',()=>assert.equal(guardianCanRead({actorId:12,participantOwnerId:13,link:{guardian_user_id:12,verified_at:'2026-10-01',revoked_at:null}}),true));
+test('unverified guardian denied',()=>assert.equal(guardianCanRead({actorId:12,participantOwnerId:13,link:{guardian_user_id:12,verified_at:null,revoked_at:null}}),false));
+test('revoked guardian denied',()=>assert.equal(guardianCanRead({actorId:12,participantOwnerId:13,link:{guardian_user_id:12,verified_at:'2026-10-01',revoked_at:'2026-10-20'}}),false));
