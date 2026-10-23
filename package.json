@@ -4,11 +4,12 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js"
+    "check": "node --check server.js && node --check role-policy.mjs && node --check access-contract.mjs",
+    "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
     "express": "^5.1.0",
